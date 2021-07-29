@@ -149,3 +149,10 @@ There are, though, a couple of things to remark:
  - You can look at the Managed Grafana Enterprise AWS Offering, but it will probably be more expensive
    than hosting your own server with Grafana Community and a small instance.
 
+# Author, Copyright and License
+
+This article was authored by Jose Luis Martinez Torres.
+
+This article is (c) 2021 Jose Luis Martinez Torres, Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+The canonical, up-to-date source is [GitHub](https://github.com/pplu/aws-managed-prometheus). Feel free to contribute back.
