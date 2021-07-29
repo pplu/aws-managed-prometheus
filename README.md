@@ -119,12 +119,15 @@ By now your Prometheus should be pushing its metrics to AMP, and Grafana should 
 ## Going the extra mile
 
 By now you should be capable, with a bit more work to adapt your monitoring instance to immutability. On instance
-startup, you can pull config files from s3 and start Prometheus and Grafana. You will need to investigate
+startup, you can pull config files and start Prometheus and Grafana. You will need to investigate:
 
  - Grafana datasource provisioning
  - Grafana dashboard provisioning
 
-That is left as an excercise to the reader.
+That is left as an excercise to the reader. After doing this excercise, you will find that you can simply
+throw away instances with old configurations, starting new instances with new configuration. Your monitoring
+infrastructure will also be more robust thanks to the fact that Autoscaling can substitute your failed 
+monitoring instance.
 
 ## No AMP Resources in CloudFormation
 
@@ -136,11 +139,13 @@ As of this writing, there was no CloudFormation support for creating AMP Workspa
 Although it is not explicitly documented, we can get AMP to work outside of a Kubernetes environment and get
 the benefits of not having to manage the metrics storage of Prometheus.
 
-There are, though, a couple of things that could be a bit better:
+There are, though, a couple of things to remark:
 
  - sigv4-proxy is only distributed as a Docker container. Being a stand-alone Go program, It would be useful
-   to have it in non-docker format also.
- - I hope AWS gets v4 signatures support into Prometheus to make things simpler
+   that AWS also distribute it in non-docker format also.
+ - I hope AWS gets v4 signatures support into Prometheus to make things simpler (no need for v4sig-proxy).
  - No native CloudFormation support for AMP: services should have CloudFormation support at Launch. The 
    community can "fill in gaps", but it is increasingly frustrating to work on things that AWS should do.
+ - You can look at the Managed Grafana Enterprise AWS Offering, but it will probably be more expensive
+   than hosting your own server with Grafana Community and a small instance.
 
