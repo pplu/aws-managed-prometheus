@@ -1,0 +1,66 @@
+Resources:
+  AMPResourceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Description: !Join [ '', [ { Ref: 'AWS::StackName' }, ' Role for CloudFormation AMPResource' ] ]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole']
+      Policies:
+        - PolicyName: prometheusserviceadmin
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowRemote
+                Effect: Allow
+                Action: [ "aps:CreateWorkspace", "aps:DeleteWorkspace", "aps:DescribeWorkspace", "aps:ListWorkspaces", "aps:UpdateWorkspaceAlias" ]
+                Resource: "*"
+  AMPResource:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: !Join [ '', [ { Ref: 'AWS::StackName' }, ' CloudFormation AMP Resource' ] ]
+      Runtime: python3.7
+      Handler: index.handler
+      Timeout: 300
+      Role: !GetAtt AMPResourceRole.Arn
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import boto3
+          import logging
+          import traceback
+          import os
+
+          LOGGER = logging.getLogger()
+          LOGGER.setLevel(logging.INFO)
+
+          amp = boto3.client('amp')
+
+          def handler(event, context):
+            try:
+              LOGGER.info('Event structure: %s', event);
+
+              if event['RequestType'] == 'Create':
+                alias = event['ResourceProperties']['Alias']
+                ws = amp.create_workspace(alias=alias)
+                # Return the workspaceId as the PhysicalId of the resource
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, { 'WorkspaceId': ws['workspaceId'] }, ws['workspaceId'])
+              elif event['RequestType'] == 'Update':
+                wsid = event['PhysicalResourceId']
+                alias = event['ResourceProperties']['Alias']
+                ws = amp.update_workspace_alias(workspaceId=wsid, alias=alias)
+                # Return the same PhysicalId of the workspace so we don't have a cloudformation replacement 
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, { 'WorkspaceId': wsid }, wsid)
+              elif event['RequestType'] == 'Delete':
+                ws = event['PhysicalResourceId']
+                amp.delete_workspace(workspaceId=ws)
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+            except Exception as e:
+              LOGGER.error(e)
+              cfnresponse.send(event, context, cfnresponse.FAILED, {})
+              traceback.print_exc()
