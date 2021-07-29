@@ -1,4 +1,8 @@
 Resources:
+  AMPDatabase:
+    Type: 'Custom::AMPDatabase'
+    Properties:
+      ServiceToken: !GetAtt AMPResource.Arn
   AMPResourceRole:
     Type: "AWS::IAM::Role"
     Properties:
