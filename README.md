@@ -25,7 +25,7 @@ in an external, managed, Prometheus database.
 
 The AWS documentation for AMP right now only talks about configuring AMP for Kubernetes. I suppose that was their
 top priority, so getting your non-Kubernetes Prometheus setup to use AMP can be a bit confusing, but the hints
-are there. So lets 
+are there. So lets start.
 
 ## AMP Workspaces
 
@@ -59,7 +59,7 @@ docker run -d --network=host --name promsigner public.ecr.aws/aws-observability/
 Note: The AMP service is refered to as `aps` in IAM and uses a `aps-workspaces` name in its endpoint. This can be a bit confusing at times, and it's not a typo.
 
 The signing proxy need some type of IAM credentials to work. Configuring an IAM Role for the instance is the best solution in this case (maybe you already have an
-instance role configure for Prometheus to call the EC2 API, for example.
+instance role configure for Prometheus to call the EC2 API, for example).
 
 ```
 PolicyName: prometheusdatastore
@@ -106,7 +106,7 @@ This will make a new option appear in the Prometheus datasource configuration fo
 `SigV4 Auth Details` section.
 
 In `URL`, introduce the endpoint of your AMP Workspace: `https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX/`
- (note that the URL doesn't have the trailing `api/` part that the write and the query endpoints have)
+ (note that the URL doesn't have the trailing `api/` part that the write and the query endpoints have).
 
 Note that optionally we could not configure the AWSv4 auth in Grafana, pointing the datasource URL to 
 `http://localhost:8005/workspaces/AMP_WORKSPACE_ID/` (note the http at the start), so Grafana would also 
